@@ -1,0 +1,109 @@
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.header h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.header p {
+  font-size: 16px;
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+th {
+  background-color: #1f2937;
+  color: white;
+}
+
+td {
+  color: #374151;
+}
+
+tr:nth-child(even) {
+  background-color: #f3f4f6;
+}
+
+tr:hover {
+  background-color: #e5e7eb;
+}
+
+.status-message {
+  color: white;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.matches-section {
+  margin-top: 40px;
+  color: white;
+}
+
+.matches-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.match-card {
+  background-color: white;
+  color: #111827;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.match-status {
+  font-weight: bold;
+  color: #4b5563;
+  margin-bottom: 12px;
+}
+
+.match-teams {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.match-teams strong {
+  font-size: 22px;
+}
+
+.match-date {
+  margin-top: 12px;
+  color: #6b7280;
+}

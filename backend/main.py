@@ -1,0 +1,93 @@
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+from database import get_db, engine
+from models import Standing, Base
+import requests
+import os
+
+load_dotenv()
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+API_KEY = os.getenv("API_FOOTBALL_KEY")
+BASE_URL = "https://v3.football.api-sports.io"
+HEADERS = {
+    "x-apisports-key": API_KEY
+}
+
+@app.get("/")
+def root():
+    return {"message": "La Liga Dashboard API"}
+
+@app.get("/standings")
+def get_standings(db: Session = Depends(get_db)):
+    # Check if we already have data in the DB
+    existing = db.query(Standing).first()
+    if existing:
+        return db.query(Standing).all()
+    
+    # If not, fetch from API and save
+    response = requests.get(
+        f"{BASE_URL}/standings",
+        headers=HEADERS,
+        params={"league": 140, "season": 2024}
+    )
+    data = response.json()
+    standings_data = data["response"][0]["league"]["standings"][0]
+
+    for team in standings_data:
+        standing = Standing(
+            rank=team["rank"],
+            team_id=team["team"]["id"],
+            team_name=team["team"]["name"],
+            points=team["points"],
+            goals_diff=team["goalsDiff"],
+            played=team["all"]["played"],
+            won=team["all"]["win"],
+            drawn=team["all"]["draw"],
+            lost=team["all"]["lose"]
+        )
+        db.add(standing)
+    
+    db.commit()
+    return db.query(Standing).all()
+
+@app.get("/fixtures")
+def get_fixtures():
+    response = requests.get(
+        f"{BASE_URL}/fixtures",
+        headers=HEADERS,
+        params={"league": 140, "season": 2024, "team": 529}
+    )
+
+    data = response.json()
+    fixtures_data = data["response"]
+
+    cleaned_fixtures = []
+
+    for match in fixtures_data:
+        cleaned_fixtures.append({
+            "id": match["fixture"]["id"],
+            "date": match["fixture"]["date"],
+            "status": match["fixture"]["status"]["short"],
+            "home_team": match["teams"]["home"]["name"],
+            "away_team": match["teams"]["away"]["name"],
+            "home_goals": match["goals"]["home"],
+            "away_goals": match["goals"]["away"]
+        })
+
+    return cleaned_fixtures
+
+# handles requests and uses both files
