@@ -107,3 +107,24 @@ tr:hover {
   margin-top: 12px;
   color: #6b7280;
 }
+
+.fixture-search {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 25px auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.fixture-search:focus {
+  outline: 2px solid #60a5fa;
+}
+
+.no-results {
+  text-align: center;
+  color: #cbd5e1;
+  margin-top: 20px;
+}
