@@ -18,3 +18,16 @@ class Standing(Base):
     updated_at = Column(DateTime, server_default=func.now())
 
 # defines what your tables look like in Python
+
+class Fixture(Base):
+    __tablename__ = "fixtures"
+
+    id = Column(Integer, primary_key=True, index=True)
+    fixture_id = Column(Integer)
+    date = Column(String(100))
+    status = Column(String(20))
+    home_team = Column(String(100))
+    away_team = Column(String(100))
+    home_goals = Column(Integer, nullable=True)
+    away_goals = Column(Integer, nullable=True)
+    updated_at = Column(DateTime, server_default=func.now())

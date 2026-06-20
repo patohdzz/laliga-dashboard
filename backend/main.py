@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from database import get_db, engine
-from models import Standing, Base
+from models import Standing, Fixture, Base
 import requests
 import os
 
@@ -65,7 +65,12 @@ def get_standings(db: Session = Depends(get_db)):
     return db.query(Standing).all()
 
 @app.get("/fixtures")
-def get_fixtures():
+def get_fixtures(db: Session = Depends(get_db)):
+    existing = db.query(Fixture).first()
+
+    if existing:
+        return db.query(Fixture).all()
+
     response = requests.get(
         f"{BASE_URL}/fixtures",
         headers=HEADERS,
@@ -75,19 +80,21 @@ def get_fixtures():
     data = response.json()
     fixtures_data = data["response"]
 
-    cleaned_fixtures = []
-
     for match in fixtures_data:
-        cleaned_fixtures.append({
-            "id": match["fixture"]["id"],
-            "date": match["fixture"]["date"],
-            "status": match["fixture"]["status"]["short"],
-            "home_team": match["teams"]["home"]["name"],
-            "away_team": match["teams"]["away"]["name"],
-            "home_goals": match["goals"]["home"],
-            "away_goals": match["goals"]["away"]
-        })
+        fixture = Fixture(
+            fixture_id=match["fixture"]["id"],
+            date=match["fixture"]["date"],
+            status=match["fixture"]["status"]["short"],
+            home_team=match["teams"]["home"]["name"],
+            away_team=match["teams"]["away"]["name"],
+            home_goals=match["goals"]["home"],
+            away_goals=match["goals"]["away"]
+        )
 
-    return cleaned_fixtures
+        db.add(fixture)
+
+    db.commit()
+
+    return db.query(Fixture).all()
 
 # handles requests and uses both files
