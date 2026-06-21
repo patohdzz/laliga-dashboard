@@ -1,19 +1,38 @@
 # La Liga Live Dashboard
 
-A full-stack web dashboard that displays La Liga standings and FC Barcelona fixtures using a React frontend, FastAPI backend, PostgreSQL database, and API-Football integration.
+A full-stack web dashboard that displays La Liga standings and FC Barcelona fixture results using a React frontend, FastAPI backend, PostgreSQL database, and API-Football integration.
 
-The project was built to practice full-stack development, REST API design, database caching, and frontend data visualization.
+The project was built to practice full-stack development, REST API design, database caching, frontend data visualization, and AWS deployment.
+
+## Live Demo
+
+Live app: https://main.d1cng9t82dpcbn.amplifyapp.com
+
+## Screenshots
+
+### Live Dashboard
+
+![La Liga Dashboard](screenshots/dashboard.png)
+
+### Fixture Search
+
+![Fixture Search](screenshots/fixtures.png)
+
+### AWS Deployment
+
+![AWS Deployment](screenshots/aws_deployment.png)
 
 ## Features
 
-* View current La Liga standings in a responsive table
+* View La Liga standings in a responsive table
 * View FC Barcelona fixture results as match cards
 * Search fixtures by team name
 * Backend REST API built with FastAPI
 * PostgreSQL caching for standings and fixtures
 * Cache expiration logic to reduce unnecessary external API calls
-* Environment variable support for secure API keys and database credentials
+* Secure environment variable support for API keys and database credentials
 * React frontend organized with reusable components and service files
+* Full AWS deployment using Amplify, API Gateway, Elastic Beanstalk, and RDS
 
 ## Tech Stack
 
@@ -36,58 +55,41 @@ The project was built to practice full-stack development, REST API design, datab
 ### Database
 
 * PostgreSQL
+* Amazon RDS
 * pgAdmin
+
+### Cloud / Deployment
+
+* AWS Amplify
+* Amazon API Gateway
+* AWS Elastic Beanstalk
+* Amazon RDS PostgreSQL
 
 ### External API
 
 * API-Football
 
-## Project Structure
+## Architecture
+
+The deployed application follows this architecture:
 
 ```txt
-laliga-dashboard/
-├── backend/
-│   ├── main.py
-│   ├── database.py
-│   ├── models.py
-│   ├── requirements.txt
-│   ├── .env.example
-│   └── venv/                # ignored by Git
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── StandingsTable.jsx
-│   │   │   └── MatchList.jsx
-│   │   ├── services/
-│   │   │   └── api.js
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── package.json
-│   └── node_modules/        # ignored by Git
-│
-├── .gitignore
-└── README.md
+AWS Amplify Frontend
+↓
+Amazon API Gateway HTTPS Endpoint
+↓
+AWS Elastic Beanstalk FastAPI Backend
+↓
+Amazon RDS PostgreSQL Database
+↓
+API-Football External API
 ```
 
-## How It Works
+The React frontend is deployed on AWS Amplify. Since Amplify serves the frontend over HTTPS, API Gateway is used as an HTTPS layer between the frontend and the backend.
 
-The app follows a full-stack architecture:
+API Gateway forwards requests to the FastAPI backend hosted on AWS Elastic Beanstalk. The backend connects to Amazon RDS PostgreSQL to retrieve cached standings and fixture data.
 
-```txt
-React Frontend
-↓
-FastAPI Backend
-↓
-PostgreSQL Database
-↓
-API-Football
-```
-
-The React frontend does not call API-Football directly. Instead, it calls the FastAPI backend.
-
-When the frontend requests standings or fixtures, the backend first checks PostgreSQL. If the cached data is still fresh, the backend returns the data from the database. If the data is missing or stale, the backend calls API-Football, updates PostgreSQL, and returns the refreshed data.
+When the frontend requests standings or fixtures, the backend first checks PostgreSQL. If the cached data is still fresh, the backend returns the data directly from the database. If the data is missing or stale, the backend calls API-Football, updates PostgreSQL, and returns the refreshed data.
 
 This reduces unnecessary external API calls and improves performance.
 
@@ -117,6 +119,37 @@ GET /fixtures
 
 Returns FC Barcelona fixtures from PostgreSQL cache or refreshes from API-Football if needed.
 
+## Project Structure
+
+```txt
+laliga-dashboard/
+├── backend/
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── requirements.txt
+│   ├── Procfile
+│   ├── .env.example
+│   └── venv/                # ignored by Git
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── StandingsTable.jsx
+│   │   │   └── MatchList.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   └── index.css
+│   ├── package.json
+│   └── node_modules/        # ignored by Git
+│
+├── amplify.yml
+├── .gitignore
+└── README.md
+```
+
 ## Backend Setup
 
 Navigate to the backend folder:
@@ -143,6 +176,7 @@ Create a `.env` file using `.env.example` as a guide:
 ```txt
 API_FOOTBALL_KEY=your_api_key_here
 DATABASE_URL=postgresql://postgres:your_password_here@localhost:5432/laliga
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 Start the backend server:
@@ -183,11 +217,23 @@ The frontend will run at:
 http://localhost:5173
 ```
 
+For local development, the frontend uses:
+
+```txt
+http://127.0.0.1:8000
+```
+
+For deployment, the frontend uses a Vite environment variable:
+
+```txt
+VITE_API_BASE_URL=https://your-api-gateway-url.amazonaws.com
+```
+
 ## Database Setup
 
 This project uses PostgreSQL.
 
-Create a PostgreSQL database named:
+For local development, create a PostgreSQL database named:
 
 ```txt
 laliga
@@ -202,6 +248,8 @@ standings
 fixtures
 ```
 
+For deployment, the database is hosted on Amazon RDS PostgreSQL.
+
 ## Environment Variables
 
 The backend requires these environment variables:
@@ -209,13 +257,18 @@ The backend requires these environment variables:
 ```txt
 API_FOOTBALL_KEY
 DATABASE_URL
+ALLOWED_ORIGINS
+```
+
+The frontend uses this environment variable in deployment:
+
+```txt
+VITE_API_BASE_URL
 ```
 
 The real `.env` file is ignored by Git for security. Use `.env.example` as a safe template.
 
-## Current Status
-
-Completed:
+## Completed Work
 
 * FastAPI backend setup
 * API-Football integration
@@ -223,20 +276,25 @@ Completed:
 * Standings caching
 * Fixtures caching
 * Cache expiration logic
-* React frontend setup
+* React frontend setup with Vite
 * Standings table component
 * Fixture card component
 * Fixture search/filter
 * GitHub repository setup
+* AWS Amplify frontend deployment
+* AWS Elastic Beanstalk backend deployment
+* Amazon RDS PostgreSQL database deployment
+* Amazon API Gateway HTTPS routing
 
-Planned improvements:
+## Future Improvements
 
-* Add deployment
-* Improve UI styling
-* Add manual refresh button
-* Add more teams or league-wide fixtures
-* Add screenshots to README
-* Add team/player detail pages
+* Add a manual refresh button for cached data
+* Add team selection instead of only Barcelona fixtures
+* Add player statistics
+* Improve UI styling and mobile responsiveness
+* Add charts for points, goal difference, and team form
+* Add automated tests for backend endpoints
+* Add custom domain and HTTPS backend configuration
 
 ## What I Learned
 
@@ -248,6 +306,8 @@ This project helped me practice:
 * Handling environment variables securely
 * Creating reusable React components
 * Fetching backend data from React
-* Implementing frontend search/filtering
+* Implementing frontend search and filtering
 * Designing caching logic to reduce external API usage
-* Organizing a full-stack project for GitHub
+* Deploying a full-stack application on AWS
+* Using API Gateway as an HTTPS layer between frontend and backend
+* Configuring CORS between deployed frontend and backend services
