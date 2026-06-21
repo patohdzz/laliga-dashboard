@@ -4,9 +4,16 @@ A full-stack web dashboard that displays La Liga standings and FC Barcelona fixt
 
 The project was built to practice full-stack development, REST API design, database caching, frontend data visualization, and AWS deployment.
 
-## Live Demo
+## Deployment
 
-Live app: https://main.d1cng9t82dpcbn.amplifyapp.com
+This project was deployed and tested on AWS using:
+
+AWS Amplify for the React frontend
+Amazon API Gateway as an HTTPS routing layer
+AWS Elastic Beanstalk for the FastAPI backend
+Amazon RDS PostgreSQL for the database
+
+The live AWS resources were later removed to avoid ongoing cloud costs, but screenshots of the deployed application and AWS services are included below.
 
 ## Screenshots
 
